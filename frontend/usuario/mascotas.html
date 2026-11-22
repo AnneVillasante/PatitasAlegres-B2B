@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VetCare | Gestión de Mascotas y Pacientes</title>
+    <link rel="stylesheet" href="css/estilos.css">
+    <style>
+        .grid-mascotas {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 18px;
+            margin-top: 15px;
+        }
+
+        .card-mascota {
+            background: var(--vet-white);
+            border: 1px solid var(--vet-border);
+            border-radius: var(--vet-radius);
+            padding: 20px;
+            box-shadow: var(--vet-shadow-sm);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+        }
+
+        .card-mascota:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--vet-shadow);
+            border-color: var(--vet-green);
+        }
+
+        .card-mascota-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .card-mascota-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: #edf4e8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+        }
+
+        .datos-clave {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            background: var(--vet-input);
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin: 12px 0;
+            font-size: 12.5px;
+        }
+
+        .datos-clave div span {
+            color: var(--vet-muted);
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .datos-clave div strong {
+            color: var(--vet-primary);
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="encabezado">
+    <div>
+        <h1>🐾 VetCare</h1>
+        <p>Registro y expedientes médicos de mascotas</p>
+    </div>
+    <div class="acciones">
+        <a href="dashboard.html" class="btn-header">← Volver al Panel</a>
+    </div>
+</header>
+
+<nav class="barra-navegacion">
+    <!-- Generado dinámicamente según el rol por roles.js -->
+</nav>
+
+<main>
+    <div class="principal">
+
+        <!-- PANEL IZQUIERDO: CATÁLOGO Y LISTADO DE PACIENTES -->
+        <section class="panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <h2>Pacientes Registrados</h2>
+                    <p style="margin-bottom: 0;">Consulta expedientes, razas, microchips y alergias de los animales.</p>
+                </div>
+                <span id="conteoMascotas" class="badge badge-info" style="font-size: 12px;">4 Mascotas</span>
+            </div>
+
+            <!-- BÚSQUEDA Y FILTROS POR ESPECIE -->
+            <div style="margin-top: 18px;">
+                <input type="search" id="buscadorMascotas" placeholder="Buscar por nombre, código, chip o raza..." oninput="filtrarMascotas()">
+            </div>
+
+            <div class="filtros" id="filtrosEspecies">
+                <button class="activo" onclick="filtrarPorEspecie('TODAS')">Todas las especies</button>
+                <button onclick="filtrarPorEspecie('1')">🐶 Caninos</button>
+                <button onclick="filtrarPorEspecie('2')">🐱 Felinos</button>
+                <button onclick="filtrarPorEspecie('3')">🦜 Aves</button>
+                <button onclick="filtrarPorEspecie('4')">🐹 Roedores</button>
+            </div>
+
+            <div class="grid-mascotas" id="contenedorMascotas">
+                <!-- Tarjetas dinámicas generadas desde VetcareDB -->
+            </div>
+        </section>
+
+        <!-- PANEL DERECHO: FORMULARIO DE REGISTRO / EDICIÓN -->
+        <aside class="panel">
+            <h2 id="tituloFormMascota">Registrar Paciente</h2>
+            <p id="descFormMascota">Ingresa los datos para abrir un nuevo expediente veterinario.</p>
+
+            <form id="formMascota" onsubmit="guardarMascota(event)">
+                <input type="hidden" id="editMascotaId" value="">
+
+                <label for="nombreMascota">Nombre del Paciente *</label>
+                <input type="text" id="nombreMascota" placeholder="Ej. Rocky" required>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label for="especieMascota">Especie *</label>
+                        <select id="especieMascota" required onchange="actualizarSelectRazas()">
+                            <option value="1">Canino</option>
+                            <option value="2">Felino</option>
+                            <option value="3">Ave</option>
+                            <option value="4">Roedor</option>
+                            <option value="5">Reptil</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="sexoMascota">Sexo *</label>
+                        <select id="sexoMascota" required>
+                            <option value="MACHO">Macho</option>
+                            <option value="HEMBRA">Hembra</option>
+                        </select>
+                    </div>
+                </div>
+
+                <label for="razaMascota">Raza</label>
+                <select id="razaMascota">
+                    <!-- Opciones dinámicas de razas -->
+                </select>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label for="pesoMascota">Peso (kg)</label>
+                        <input type="number" step="0.1" id="pesoMascota" placeholder="Ej. 12.5">
+                    </div>
+                    <div>
+                        <label for="fechaNacMascota">Nacimiento</label>
+                        <input type="date" id="fechaNacMascota">
+                    </div>
+                </div>
+
+                <label for="chipMascota">N° de Microchip</label>
+                <input type="text" id="chipMascota" placeholder="Ej. 985141002345671">
+
+                <label for="colorMascota">Color / Pelaje</label>
+                <input type="text" id="colorMascota" placeholder="Ej. Dorado, Negro y Fuego...">
+
+                <label for="alergiasMascota">Alergias o Condiciones</label>
+                <textarea id="alergiasMascota" rows="2" placeholder="Ej. Alergia a picadura de pulga, intolerancia a lácteos..."></textarea>
+
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button type="submit" id="btnSubmitMascota" style="flex: 1;">Guardar Paciente</button>
+                    <button type="button" class="btn-cancelar" onclick="limpiarFormulario()">Limpiar</button>
+                </div>
+            </form>
+        </aside>
+
+    </div>
+</main>
+
+<footer>
+    <p>VetCare © 2026 · Cuidado y bienestar animal · Clínica Patitas Alegre</p>
+</footer>
+
+<script src="js/roles.js"></script>
+<script src="js/database-manager.js"></script>
+
+<script>
+    let especieFiltro = "TODAS";
+    let listaMascotas = [];
+
+    const ICONOS_ESPECIES = {
+        1: "🐶", // Canino
+        2: "🐱", // Felino
+        3: "🦜", // Ave
+        4: "🐹", // Roedor
+        5: "🦎"  // Reptil
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+        inicializarRolesUI("mascotas");
+        actualizarSelectRazas();
+        cargarMascotas();
+    });
+
+    async function cargarMascotas() {
+        listaMascotas = await VetcareDB.fetchTableData("mascotas");
+        renderizarMascotas();
+    }
+
+    function actualizarSelectRazas() {
+        const espId = parseInt(document.getElementById("especieMascota").value, 10);
+        const todasRazas = VetcareDB.getTableData("razas");
+        const razasFiltradas = todasRazas.filter(r => r.id_especie === espId);
+
+        const select = document.getElementById("razaMascota");
+        select.innerHTML = "";
+
+        if (razasFiltradas.length === 0) {
+            const opt = document.createElement("option");
+            opt.value = "";
+            opt.textContent = "Mestizo / General";
+            select.appendChild(opt);
+            return;
+        }
+
+        razasFiltradas.forEach(r => {
+            const opt = document.createElement("option");
+            opt.value = r.id_raza;
+            opt.textContent = r.nombre;
+            select.appendChild(opt);
+        });
+    }
+
+    function filtrarPorEspecie(especie) {
+        especieFiltro = especie;
+        document.querySelectorAll("#filtrosEspecies button").forEach(b => b.classList.remove("activo"));
+        event.target.classList.add("activo");
+        renderizarMascotas();
+    }
+
+    function filtrarMascotas() {
+        renderizarMascotas();
+    }
+
+    function renderizarMascotas() {
+        const grid = document.getElementById("contenedorMascotas");
+        grid.innerHTML = "";
+
+        const query = document.getElementById("buscadorMascotas").value.toLowerCase().trim();
+        const razasMap = {};
+        VetcareDB.getTableData("razas").forEach(r => razasMap[r.id_raza] = r.nombre);
+
+        const filtradas = listaMascotas.filter(m => {
+            if (especieFiltro !== "TODAS" && String(m.id_especie) !== String(especieFiltro)) {
+                return false;
+            }
+            if (!query) return true;
+            const razaNombre = razasMap[m.id_raza] || "";
+            return (
+                (m.nombre && m.nombre.toLowerCase().includes(query)) ||
+                (m.codigo && m.codigo.toLowerCase().includes(query)) ||
+                (m.numero_chip && m.numero_chip.toLowerCase().includes(query)) ||
+                razaNombre.toLowerCase().includes(query)
+            );
+        });
+
+        document.getElementById("conteoMascotas").textContent = `${filtradas.length} Mascotas`;
+
+        if (filtradas.length === 0) {
+            grid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: var(--vet-muted); padding: 30px;">
+                No se encontraron mascotas que coincidan con la búsqueda.
+            </p>`;
+            return;
+        }
+
+        filtradas.forEach(m => {
+            const icono = ICONOS_ESPECIES[m.id_especie] || "🐾";
+            const razaNombre = razasMap[m.id_raza] || "Mestizo";
+            const card = document.createElement("div");
+            card.className = "card-mascota";
+
+            card.innerHTML = `
+                <div>
+                    <div class="card-mascota-header">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div class="card-mascota-avatar">${icono}</div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--vet-primary); font-size: 17px;">${m.nombre}</h3>
+                                <span style="font-size: 12px; color: var(--vet-muted);">${razaNombre} · ${m.sexo}</span>
+                            </div>
+                        </div>
+                        <span class="badge badge-activo">${m.estado || "ACTIVO"}</span>
+                    </div>
+
+                    <div class="datos-clave">
+                        <div>
+                            <span>Peso</span>
+                            <strong>${m.peso_kg ? m.peso_kg + " kg" : "N/D"}</strong>
+                        </div>
+                        <div>
+                            <span>Nacimiento</span>
+                            <strong>${m.fecha_nacimiento || "N/D"}</strong>
+                        </div>
+                        <div>
+                            <span>Microchip</span>
+                            <strong>${m.numero_chip || "Sin chip"}</strong>
+                        </div>
+                        <div>
+                            <span>Código</span>
+                            <strong>${m.codigo || "MAS-" + m.id_mascota}</strong>
+                        </div>
+                    </div>
+
+                    ${m.alergias ? `
+                        <p style="font-size: 12px; color: #b71c1c; margin-bottom: 8px;">
+                            <strong>⚠️ Alergia:</strong> ${m.alergias}
+                        </p>
+                    ` : ""}
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-top: 14px; border-top: 1px solid var(--vet-border); padding-top: 12px;">
+                    <button class="btn-secundario btn-sm" style="flex: 1;" onclick="editarMascota(${m.id_mascota})">
+                        ✏️ Editar
+                    </button>
+                    <button class="btn-eliminar btn-sm" onclick="eliminarMascota(${m.id_mascota}, '${m.nombre}')">
+                        🗑️
+                    </button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function editarMascota(id) {
+        const m = listaMascotas.find(item => item.id_mascota === id);
+        if (!m) return;
+
+        document.getElementById("editMascotaId").value = m.id_mascota;
+        document.getElementById("nombreMascota").value = m.nombre;
+        document.getElementById("especieMascota").value = m.id_especie;
+        actualizarSelectRazas();
+        document.getElementById("razaMascota").value = m.id_raza || "";
+        document.getElementById("sexoMascota").value = m.sexo;
+        document.getElementById("pesoMascota").value = m.peso_kg || "";
+        document.getElementById("fechaNacMascota").value = m.fecha_nacimiento || "";
+        document.getElementById("chipMascota").value = m.numero_chip || "";
+        document.getElementById("colorMascota").value = m.color || "";
+        document.getElementById("alergiasMascota").value = m.alergias || "";
+
+        document.getElementById("tituloFormMascota").textContent = `Editar a ${m.nombre}`;
+        document.getElementById("descFormMascota").textContent = `Modificando expediente #${m.id_mascota}`;
+        document.getElementById("btnSubmitMascota").textContent = "Actualizar Paciente";
+
+        document.getElementById("nombreMascota").focus();
+    }
+
+    function limpiarFormulario() {
+        document.getElementById("formMascota").reset();
+        document.getElementById("editMascotaId").value = "";
+        document.getElementById("tituloFormMascota").textContent = "Registrar Paciente";
+        document.getElementById("descFormMascota").textContent = "Ingresa los datos para abrir un nuevo expediente veterinario.";
+        document.getElementById("btnSubmitMascota").textContent = "Guardar Paciente";
+        actualizarSelectRazas();
+    }
+
+    async function guardarMascota(e) {
+        e.preventDefault();
+        const idEdit = document.getElementById("editMascotaId").value;
+
+        const record = {
+            nombre: document.getElementById("nombreMascota").value.trim(),
+            id_especie: parseInt(document.getElementById("especieMascota").value, 10),
+            id_raza: document.getElementById("razaMascota").value ? parseInt(document.getElementById("razaMascota").value, 10) : null,
+            sexo: document.getElementById("sexoMascota").value,
+            peso_kg: document.getElementById("pesoMascota").value ? parseFloat(document.getElementById("pesoMascota").value) : null,
+            fecha_nacimiento: document.getElementById("fechaNacMascota").value || null,
+            numero_chip: document.getElementById("chipMascota").value.trim() || null,
+            color: document.getElementById("colorMascota").value.trim() || null,
+            alergias: document.getElementById("alergiasMascota").value.trim() || null,
+            id_propietario: 1, // Por defecto asignado a cliente activo
+            estado: "ACTIVO"
+        };
+
+        if (idEdit) {
+            await VetcareDB.updateRecord("mascotas", idEdit, record);
+        } else {
+            record.codigo = "MAS-" + String(listaMascotas.length + 1).padStart(3, "0");
+            await VetcareDB.createRecord("mascotas", record);
+        }
+
+        limpiarFormulario();
+        await cargarMascotas();
+    }
+
+    async function eliminarMascota(id, nombre) {
+        if (confirm(`¿Estás seguro de dar de baja o eliminar el expediente de ${nombre}?`)) {
+            await VetcareDB.deleteRecord("mascotas", id);
+            await cargarMascotas();
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "esb": {"baseUrl": "http://localhost:8290/services", "managementUrl": "https://localhost:8253/management"},
+  "adapter": {"baseUrl": "http://127.0.0.1:8099"},
+  "services": {"registro":"http://127.0.0.1:8080","auth":"http://127.0.0.1:5000","propietarios":"http://127.0.0.1:8003","mascotas":"http://127.0.0.1:8081","personal":"http://127.0.0.1:8005","venta":"http://127.0.0.1:3000","citas":"http://127.0.0.1:8007","farmacia":"http://127.0.0.1:8008","notificaciones":"http://127.0.0.1:8010"},
+  "proxies": {"AuthProxy":"/services/AuthProxy","RegistroProxy":"/services/RegistroProxy","PropietariosProxy":"/services/PropietariosProxy","MascotasProxy":"/services/MascotasProxy","VeterinariosProxy":"/services/VeterinariosProxy","VentaProxy":"/services/VentaProxy","CitasProxy":"/services/CitasProxy","FarmaciaProxy":"/services/FarmaciaProxy","NotificacionesProxy":"/services/NotificacionesProxy","ReniecProxy":"/services/ReniecProxy","SunatProxy":"/services/SunatProxy"}
+}

@@ -1,0 +1,6 @@
+Flask>=3.0,<4
+flask-cors>=4.0,<7
+mysql-connector-python>=8.4,<10
+bcrypt>=4.0,<6
+PyJWT>=2.8,<3
+python-dotenv>=1.0,<2

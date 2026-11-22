@@ -1,0 +1,1 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ren="http://clinica.com/reniec"><soapenv:Header/><soapenv:Body><ren:consultarDniRequest><ren:dni>12345678</ren:dni></ren:consultarDniRequest></soapenv:Body></soapenv:Envelope>

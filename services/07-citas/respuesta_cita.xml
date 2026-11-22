@@ -1,0 +1,2 @@
+<?xml version="1.0"?>
+<consultarCitaResponse><codigo>ERROR-NEGOCIO</codigo><estado>FALLIDO</estado><mensaje>Cita no encontrada</mensaje></consultarCitaResponse>

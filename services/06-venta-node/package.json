@@ -1,0 +1,24 @@
+
+{
+  "name": "venta-node",
+  "version": "1.0.0",
+  "description": "Microservicio de ventas y accesorios VetCare",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"No hay pruebas automatizadas configuradas\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.8",
+    "express": "^5.3.0",
+    "mysql2": "^3.24.6"
+  },
+  "engines": {
+    "node": ">=24.11.0"
+  }
+}

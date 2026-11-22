@@ -1,0 +1,66 @@
+
+package com.clinica.farmacia.eventos;
+
+import java.io.Serializable;
+
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+
+@JacksonXmlRootElement(localName = "Evento")
+public class Evento implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private String tipo;
+    private String codigoVenta;
+    private Integer idPropietario;
+    private String motivo;
+
+    public Evento() {
+    }
+
+    public Evento(String tipo, String codigoVenta, Integer idPropietario) {
+        this.tipo = tipo;
+        this.codigoVenta = codigoVenta;
+        this.idPropietario = idPropietario;
+    }
+
+    public Evento(String tipo, String codigoVenta,
+                  Integer idPropietario, String motivo) {
+        this.tipo = tipo;
+        this.codigoVenta = codigoVenta;
+        this.idPropietario = idPropietario;
+        this.motivo = motivo;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public String getCodigoVenta() {
+        return codigoVenta;
+    }
+
+    public void setCodigoVenta(String codigoVenta) {
+        this.codigoVenta = codigoVenta;
+    }
+
+    public Integer getIdPropietario() {
+        return idPropietario;
+    }
+
+    public void setIdPropietario(Integer idPropietario) {
+        this.idPropietario = idPropietario;
+    }
+
+    public String getMotivo() {
+        return motivo;
+    }
+
+    public void setMotivo(String motivo) {
+        this.motivo = motivo;
+    }
+}

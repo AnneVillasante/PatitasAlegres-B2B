@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://clinica.com/venta" xmlns:tns="http://clinica.com/venta" elementFormDefault="qualified">
+<xs:element name="listarProductosRequest"><xs:complexType/></xs:element>
+<xs:element name="listarProductosResponse"><xs:complexType><xs:sequence><xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax"/></xs:sequence></xs:complexType></xs:element>
+<xs:element name="iniciarVentaRequest"><xs:complexType><xs:sequence><xs:element name="dni" type="xs:string"/><xs:element name="item" minOccurs="1" maxOccurs="unbounded"><xs:complexType><xs:sequence><xs:element name="idProducto" type="xs:positiveInteger"/><xs:element name="cantidad" type="xs:positiveInteger"/></xs:sequence></xs:complexType></xs:element></xs:sequence></xs:complexType></xs:element>
+<xs:element name="iniciarVentaResponse"><xs:complexType><xs:sequence><xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax"/></xs:sequence></xs:complexType></xs:element>
+<xs:element name="listarVentasRequest"><xs:complexType/></xs:element><xs:element name="listarVentasResponse"><xs:complexType><xs:sequence><xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax"/></xs:sequence></xs:complexType></xs:element>
+<xs:element name="consultarVentaRequest"><xs:complexType><xs:sequence><xs:element name="idVenta" type="xs:positiveInteger"/></xs:sequence></xs:complexType></xs:element><xs:element name="consultarVentaResponse"><xs:complexType><xs:sequence><xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax"/></xs:sequence></xs:complexType></xs:element>
+</xs:schema>
