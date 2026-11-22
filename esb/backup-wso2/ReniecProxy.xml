@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<proxy xmlns="http://ws.apache.org/ns/synapse" name="ReniecProxy" transports="http https" startOnLoad="true">
+  <target>
+    <inSequence>
+      <property name="messageType" value="application/xml" scope="axis2"/>
+      <property name="ContentType" value="application/xml" scope="axis2"/>
+      <log level="custom"><property name="SOAP_PROXY" value="ReniecProxy"/></log>
+      <send><endpoint><address uri="http://host.docker.internal:8099/soap/reniec"/></endpoint></send>
+    </inSequence>
+    <outSequence><send/></outSequence>
+    <faultSequence>
+      <log level="custom"><property name="SOAP_PROXY_ERROR" value="ReniecProxy"/></log>
+      <property name="HTTP_SC" value="502" scope="axis2"/>
+      <payloadFactory media-type="xml"><format><soapAdapterError><code>BACKEND_ERROR</code><message>Error al invocar el adaptador del servicio</message></soapAdapterError></format><args/></payloadFactory>
+      <respond/>
+    </faultSequence>
+  </target>
+  <publishWSDL key="conf:/wsdl/reniec.wsdl"/>
+</proxy>
