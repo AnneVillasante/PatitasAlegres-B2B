@@ -1,11 +1,11 @@
-param([string]$Container = "clinica-wso2mi")
+﻿param([string]$Container = "clinica-wso2mi")
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 $running = docker inspect -f '{{.State.Running}}' $Container 2>$null
 if ($running -ne 'true') { throw "El contenedor $Container no está en ejecución. No se iniciará ni reiniciará automáticamente." }
-$home = "/home/wso2carbon/wso2mi-4.7.0"
-$proxyTarget = "$home/repository/deployment/server/synapse-configs/default/proxy-services"
-$registry = "$home/registry/config"
+$wso2Home = "/home/wso2carbon/wso2mi-4.7.0"
+$proxyTarget = "$wso2Home/repository/deployment/server/synapse-configs/default/proxy-services"
+$registry = "$wso2Home/registry/config"
 docker exec $Container sh -lc "mkdir -p '$proxyTarget' '$registry/wsdl' '$registry/xsd'"
 # Backup existing same-name proxies before replacing.
 $backup = Join-Path $root "esb\backup-wso2"
@@ -24,3 +24,4 @@ Get-ChildItem (Join-Path $root "esb\wso2-registry\xsd") -File | ForEach-Object {
 }
 Write-Host "Artefactos copiados. WSO2 detectará los proxies por hot deployment; no se reinició el contenedor." -ForegroundColor Green
 Write-Host "Comprueba: http://localhost:8290/services/listServices" -ForegroundColor Cyan
+

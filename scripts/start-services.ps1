@@ -1,4 +1,4 @@
-param([switch]$SkipDocker, [switch]$SkipJava)
+﻿param([switch]$SkipDocker, [switch]$SkipJava)
 $ErrorActionPreference = "Continue"
 $root = Split-Path -Parent $PSScriptRoot
 function PortOpen([int]$p) { return [bool](Test-NetConnection 127.0.0.1 -Port $p -InformationLevel Quiet -WarningAction SilentlyContinue) }
@@ -9,7 +9,7 @@ if (-not $SkipDocker) {
   else { Write-Host "MySQL y ActiveMQ ya están activos; no se reinician." -ForegroundColor Green }
 }
 function Start-One($name,$folder,$port,$command) {
-  if (PortOpen $port) { Write-Host "$name: puerto $port ya está ocupado; se omite sin detener el proceso." -ForegroundColor Yellow; return }
+  if (PortOpen $port) { Write-Host "${name}: puerto $port ya está ocupado; se omite sin detener el proceso." -ForegroundColor Yellow; return }
   $path=Join-Path $root "services\$folder"
   $line="Set-Location '$path'; $command"
   $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($line))
@@ -36,3 +36,4 @@ if (-not $SkipJava) {
   Start-One '08-farmacia' '08-farmacia' 8008 '$env:MAVEN_OPTS="-Xms128m -Xmx512m"; .\mvnw.cmd spring-boot:run'
 }
 Write-Host "Inicio solicitado. Ningún proceso existente fue terminado." -ForegroundColor Green
+
