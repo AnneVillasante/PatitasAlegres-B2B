@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <proxy xmlns="http://ws.apache.org/ns/synapse" name="NotificacionesProxy" transports="http https" startOnLoad="true">
   <target>
     <inSequence>
@@ -15,5 +15,8 @@
       <respond/>
     </faultSequence>
   </target>
-  <publishWSDL key="conf:/wsdl/notificaciones.wsdl"/>
+  <publishWSDL key="conf:/wsdl/notificaciones.wsdl">
+    <resource location="notificacion.xsd" key="conf:/xsd/notificacion.xsd"/>
+  </publishWSDL>
 </proxy>
+

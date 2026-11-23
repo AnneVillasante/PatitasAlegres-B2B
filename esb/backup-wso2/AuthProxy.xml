@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <proxy xmlns="http://ws.apache.org/ns/synapse" name="AuthProxy" transports="http https" startOnLoad="true">
   <target>
     <inSequence>
@@ -15,5 +15,8 @@
       <respond/>
     </faultSequence>
   </target>
-  <publishWSDL key="conf:/wsdl/auth.wsdl"/>
+  <publishWSDL key="conf:/wsdl/auth.wsdl">
+    <resource location="file:///home/wso2carbon/wso2mi-4.7.0/registry/config/wsdl/auth.xsd" key="conf:/xsd/auth.xsd"/>
+  </publishWSDL>
 </proxy>
+

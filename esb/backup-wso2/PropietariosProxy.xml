@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <proxy xmlns="http://ws.apache.org/ns/synapse" name="PropietariosProxy" transports="http https" startOnLoad="true">
   <target>
     <inSequence>
@@ -15,5 +15,8 @@
       <respond/>
     </faultSequence>
   </target>
-  <publishWSDL key="conf:/wsdl/propietarios.wsdl"/>
+  <publishWSDL key="conf:/wsdl/propietarios.wsdl">
+    <resource location="propietario.xsd" key="conf:/xsd/propietario.xsd"/>
+  </publishWSDL>
 </proxy>
+

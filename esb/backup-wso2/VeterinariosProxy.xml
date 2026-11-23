@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <proxy xmlns="http://ws.apache.org/ns/synapse" name="VeterinariosProxy" transports="http https" startOnLoad="true">
   <target>
     <inSequence>
@@ -15,5 +15,11 @@
       <respond/>
     </faultSequence>
   </target>
-  <publishWSDL key="conf:/wsdl/personal.wsdl"/>
+  <publishWSDL key="conf:/wsdl/personal.wsdl">
+    <resource location="veterinario.xsd" key="conf:/xsd/veterinario.xsd"/>
+  </publishWSDL>
 </proxy>
+
+
+
+

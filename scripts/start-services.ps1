@@ -23,11 +23,16 @@ Start-One '05-personal' '05-personal' 8005 'if (Test-Path .\.venv\Scripts\python
 Start-One '06-venta-node' '06-venta-node' 3000 'npm start'
 Start-One '07-citas' '07-citas' 8007 'php -S 0.0.0.0:8007 -t public'
 Start-One '10-notificaciones' '10-notificaciones' 8010 'php -S 0.0.0.0:8010 -t public'
-$listenerPath = Join-Path $root "services\10-notificaciones"
-$listenerCommand = "Set-Location '$listenerPath'; php bin/listener.php"
-$listenerEncoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($listenerCommand))
-Start-Process powershell.exe -ArgumentList @('-NoExit','-ExecutionPolicy','Bypass','-EncodedCommand',$listenerEncoded) -WindowStyle Normal | Out-Null
-Write-Host "Listener STOMP de Notificaciones lanzado en una ventana independiente." -ForegroundColor Green
+$listenerRunning = Get-CimInstance Win32_Process -Filter "Name = 'php.exe'" | Where-Object { $_.CommandLine -like '*listener.php*' }
+if ($listenerRunning) {
+  Write-Host "Listener STOMP de Notificaciones ya está activo; se omite." -ForegroundColor Yellow
+} else {
+  $listenerPath = Join-Path $root "services\10-notificaciones"
+  $listenerCommand = "Set-Location '$listenerPath'; php bin/listener.php"
+  $listenerEncoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($listenerCommand))
+  Start-Process powershell.exe -ArgumentList @('-NoExit','-ExecutionPolicy','Bypass','-EncodedCommand',$listenerEncoded) -WindowStyle Normal | Out-Null
+  Write-Host "Listener STOMP de Notificaciones lanzado en una ventana independiente." -ForegroundColor Green
+}
 Start-One '11-soap-adapter' '11-soap-adapter' 8099 'if (Test-Path .\.venv\Scripts\python.exe) { .\.venv\Scripts\python.exe app.py } else { py app.py }'
 if (-not $SkipJava) {
   Write-Host "Los tres servicios Java se inician al final por consumo de memoria." -ForegroundColor Cyan
@@ -36,4 +41,5 @@ if (-not $SkipJava) {
   Start-One '08-farmacia' '08-farmacia' 8008 '$env:MAVEN_OPTS="-Xms128m -Xmx512m"; .\mvnw.cmd spring-boot:run'
 }
 Write-Host "Inicio solicitado. Ningún proceso existente fue terminado." -ForegroundColor Green
+
 

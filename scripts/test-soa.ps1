@@ -14,4 +14,4 @@ try { Invoke-RestMethod http://127.0.0.1:3000/api/salud -TimeoutSec 5 | ConvertT
 Write-Host "`n===== ADAPTADOR SOAP =====" -ForegroundColor Cyan
 try { Invoke-RestMethod http://127.0.0.1:8099/health -TimeoutSec 5 | ConvertTo-Json -Depth 5 } catch { Write-Host $_.Exception.Message -ForegroundColor Red }
 Write-Host "`n===== WSO2 LIST SERVICES =====" -ForegroundColor Cyan
-try { (Invoke-WebRequest http://127.0.0.1:8290/services/listServices -UseBasicParsing -TimeoutSec 10).StatusCode } catch { Write-Host $_.Exception.Message -ForegroundColor Red }
+try { (Invoke-WebRequest http://127.0.0.1:8290/services/VeterinariosProxy?wsdl -UseBasicParsing -TimeoutSec 10).StatusCode } catch { Write-Host $_.Exception.Message -ForegroundColor Red }
