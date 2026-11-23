@@ -1,2 +1,2 @@
-# Compatibilidad: usa los puertos actuales (MI 8290, MySQL 3307).
+# Estado integral: microservicios, adaptador SOAP, MySQL, ActiveMQ y WSO2 MI.
 & "$PSScriptRoot\test-soa.ps1"

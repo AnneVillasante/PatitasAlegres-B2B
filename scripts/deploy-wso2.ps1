@@ -23,4 +23,4 @@ Get-ChildItem (Join-Path $root "esb\wso2-registry\xsd") -File | ForEach-Object {
     docker cp $_.FullName "${Container}:$registry/xsd/$($_.Name)"
 }
 Write-Host "Artefactos copiados. WSO2 detectará los proxies por hot deployment; no se reinició el contenedor." -ForegroundColor Green
-Write-Host "Comprueba: http://localhost:8290/services/listServices" -ForegroundColor Cyan
+Write-Host "Comprueba: http://localhost:8290/services/VeterinariosProxy?wsdl" -ForegroundColor Cyan

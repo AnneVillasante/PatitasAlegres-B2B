@@ -1,4 +1,4 @@
 [CmdletBinding()]
 param([switch]$SkipDocker,[switch]$SkipJava)
-# Compatibilidad: redirige al iniciador seguro. No termina procesos existentes.
+# Punto de entrada compatible: usa la estructura actual y no termina procesos existentes.
 & "$PSScriptRoot\start-services.ps1" @PSBoundParameters

@@ -11,6 +11,12 @@ foreach($port in $ports){
     if($proc){ $found += [PSCustomObject]@{Port=$port;PID=$proc.Id;Process=$proc.ProcessName} }
   }
 }
+# El listener STOMP no abre uno de los puertos HTTP del proyecto.
+Get-CimInstance Win32_Process -Filter "Name = 'php.exe'" -ErrorAction SilentlyContinue |
+  Where-Object { $_.CommandLine -like '*listener.php*' } |
+  ForEach-Object {
+    $found += [PSCustomObject]@{Port='STOMP';PID=$_.ProcessId;Process='php (listener.php)'}
+  }
 $found = $found | Sort-Object PID -Unique
 if(-not $found){ Write-Host "No hay procesos escuchando en puertos de microservicios." -ForegroundColor Green; exit 0 }
 $found | Format-Table -AutoSize

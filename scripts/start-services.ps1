@@ -40,6 +40,11 @@ if (-not $SkipJava) {
   Start-One '04-mascotas' '04-mascotas' 8081 '$env:MAVEN_OPTS="-Xms128m -Xmx512m"; .\mvnw.cmd spring-boot:run'
   Start-One '08-farmacia' '08-farmacia' 8008 '$env:MAVEN_OPTS="-Xms128m -Xmx512m"; .\mvnw.cmd spring-boot:run'
 }
+if (PortOpen 8290) {
+  Write-Host "WSO2 MI ya está disponible en el puerto 8290; no se inicia ni se reinicia." -ForegroundColor Green
+} else {
+  Write-Host "WSO2 MI no está disponible en el puerto 8290. Inicia o verifica el contenedor clinica-wso2mi por separado." -ForegroundColor Yellow
+}
 Write-Host "Inicio solicitado. Ningún proceso existente fue terminado." -ForegroundColor Green
 
 

@@ -15,11 +15,14 @@ $services = @(
     @{ Name = '08-farmacia'; Port = 8008; Url = 'http://127.0.0.1:8008/farmacia/productos'; Method = 'GET'; Body = $null; Type = 'XML' },
     @{ Name = '10-notificaciones'; Port = 8010; Url = 'http://127.0.0.1:8010/notificaciones/consultar/NOT-NO-EXISTE'; Method = 'GET'; Body = $null; Type = 'XML' }
 )
+$passed = 0
+$failed = 0
 
 foreach ($service in $services) {
     $portOpen = Test-NetConnection 127.0.0.1 -Port $service.Port -InformationLevel Quiet
     if (-not $portOpen) {
         Write-Warning "$($service.Name.PadRight(18)): puerto $($service.Port) no disponible"
+        $failed++
         continue
     }
 
@@ -35,15 +38,45 @@ foreach ($service in $services) {
         }
 
         Write-Host "$($service.Name.PadRight(18)): OK (HTTP $($response.StatusCode) - $($service.Type))" -ForegroundColor Green
+        $passed++
     } catch {
         $resp = $_.Exception.Response
         if ($resp -and [int]$resp.StatusCode -eq 404 -and $service.Name -eq '10-notificaciones') {
             Write-Host "$($service.Name.PadRight(18)): OK (HTTP 404 - Controlado XML)" -ForegroundColor Green
+            $passed++
             continue
         }
         $status = if ($resp) { [int]$resp.StatusCode } else { 'sin respuesta' }
         Write-Warning "$($service.Name.PadRight(18)): fallo HTTP ($status) - $($_.Exception.Message)"
+        $failed++
     }
 }
 
-Write-Host "`nPrueba de humo finalizada.`n" -ForegroundColor Cyan
+Write-Host "`n===== ADAPTADOR SOAP =====" -ForegroundColor Cyan
+try {
+    $adapter = Invoke-RestMethod 'http://127.0.0.1:8099/health' -TimeoutSec 5
+    Write-Host "11-soap-adapter     : OK (HTTP 200 - $($adapter.status))" -ForegroundColor Green
+    $passed++
+} catch {
+    Write-Warning "11-soap-adapter     : no disponible"
+    $failed++
+}
+
+Write-Host "`n===== WSO2 MI - 11 PROXIES =====" -ForegroundColor Cyan
+$proxies = @(
+    'AuthProxy','RegistroProxy','PropietariosProxy','MascotasProxy','VeterinariosProxy',
+    'VentaProxy','CitasProxy','FarmaciaProxy','NotificacionesProxy','ReniecProxy','SunatProxy'
+)
+foreach ($proxy in $proxies) {
+    try {
+        $response = Invoke-WebRequest "http://127.0.0.1:8290/services/$proxy`?wsdl" -UseBasicParsing -TimeoutSec 10
+        Write-Host "$($proxy.PadRight(22)): OK (HTTP $($response.StatusCode) - WSDL)" -ForegroundColor Green
+        $passed++
+    } catch {
+        $status = if ($_.Exception.Response) { [int]$_.Exception.Response.StatusCode } else { 'sin respuesta' }
+        Write-Warning "$($proxy.PadRight(22)): fallo (HTTP $status)"
+        $failed++
+    }
+}
+
+Write-Host "`nResultado: $passed correctos, $failed fallos." -ForegroundColor $(if ($failed -eq 0) { 'Green' } else { 'Yellow' })
