@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param()
-$ports = @(8080,5000,8003,8081,8005,3000,8007,8008,8010,8099)
+$ports = @(8080,5000,8003,8081,8005,3000,8007,8008,8010,8099,9001,9002)
 Write-Host "Se van a revisar procesos que escuchan en puertos del proyecto." -ForegroundColor Yellow
 Write-Host "Este script NO detiene MySQL, ActiveMQ ni WSO2." -ForegroundColor Yellow
 $found = @()

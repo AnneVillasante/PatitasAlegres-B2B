@@ -1,6 +1,8 @@
 import os
 import json
 import requests
+import hashlib
+from datetime import datetime, timezone
 import xml.etree.ElementTree as ET
 from flask import Flask, request, Response, jsonify
 
@@ -16,6 +18,8 @@ BASE = {
     "citas": os.getenv("CITAS_URL", "http://127.0.0.1:8007"),
     "farmacia": os.getenv("FARMACIA_URL", "http://127.0.0.1:8008"),
     "notificaciones": os.getenv("NOTIFICACIONES_URL", "http://127.0.0.1:8010"),
+    "reniec": os.getenv("RENIEC_URL", "http://127.0.0.1:9001"),
+    "sunat": os.getenv("SUNAT_URL", "http://127.0.0.1:9002"),
 }
 NS = {
     "auth":"http://clinica.com/auth", "registro":"http://clinica.com/registro",
@@ -114,6 +118,16 @@ def soap_dispatch(service):
     try:
         op=parse_request(request.get_data())
         operation=local(op.tag); d=to_dict(op)
+        if service in ('reniec','sunat'):
+            external_url = BASE[service] + ('/ws/reniec' if service=='reniec' else '/ws/sunat')
+            try:
+                external=requests.post(external_url,data=request.get_data(),headers={
+                    'Content-Type':request.headers.get('Content-Type','application/xml'),
+                    'SOAPAction':request.headers.get('SOAPAction','')
+                },timeout=TIMEOUT)
+                return Response(external.content,status=external.status_code,content_type='text/xml; charset=utf-8')
+            except requests.RequestException:
+                app.logger.warning('Proveedor externo %s no disponible; usando simulacion local',service)
         # AUTH: REST JSON contract, JWT operations.
         if service=='auth':
             if operation=='loginRequest':
@@ -192,15 +206,43 @@ def soap_dispatch(service):
         if service=='reniec' and operation=='consultarDniRequest':
             dni=str(d.get('dni',''))
             if len(dni)!=8 or not dni.isdigit(): return error(service,operation,400,'DNI debe tener 8 dígitos')
-            demo={'12345678':{'dni':dni,'nombres':'PERSONA DEMO','apellidos':'RENIEC SIMULADO','estado':'ACTIVO'}}
+            demo={
+                '71234567':{'dni':dni,'nombres':'SUEMY ANNE KATRINA','apellidos':'VILLASANTE VILLASANTE','estado':'ACTIVO','ubigeo':'040101'},
+                '45678912':{'dni':dni,'nombres':'CARLOS ALBERTO','apellidos':'MENDOZA QUISPE','estado':'ACTIVO','ubigeo':'040109'},
+                '12345678':{'dni':dni,'nombres':'MARIA FERNANDA','apellidos':'TORRES LOPEZ','estado':'ACTIVO','ubigeo':'150101'},
+                '00000000':{'dni':dni,'nombres':'CIUDADANO','apellidos':'OBSERVADO PRUEBA','estado':'RESTRINGIDO','ubigeo':'000000'}
+            }
             if dni not in demo: return xml_response(service,'consultarDniResponse',{'encontrado':'false','mensaje':'DNI no encontrado en el padrón simulado'},404)
             return xml_response(service,'consultarDniResponse',{'encontrado':'true',**demo[dni],'fuente':'SIMULACION LOCAL - NO OFICIAL'},200)
         if service=='sunat' and operation=='consultarRucRequest':
             ruc=str(d.get('ruc',''))
             if len(ruc)!=11 or not ruc.isdigit(): return error(service,operation,400,'RUC debe tener 11 dígitos')
-            demo={'20123456789':{'ruc':ruc,'razonSocial':'EMPRESA DEMO S.A.C.','estado':'ACTIVO','condicion':'HABIDO','direccion':'DIRECCION FICTICIA'}}
+            demo={
+                '20601234561':{'ruc':ruc,'razonSocial':'CLINICA VETERINARIA PATITAS ALEGRES S.A.C.','estado':'ACTIVO','condicion':'HABIDO','direccion':'AV. EJERCITO 450, AREQUIPA'},
+                '20100047218':{'ruc':ruc,'razonSocial':'DISTRIBUIDORA FARMACEUTICA VET PERU S.A.','estado':'ACTIVO','condicion':'HABIDO','direccion':'CALLE MERCADERES 120, AREQUIPA'},
+                '20123456789':{'ruc':ruc,'razonSocial':'EMPRESA DEMO S.A.C.','estado':'ACTIVO','condicion':'HABIDO','direccion':'DIRECCION FICTICIA'}
+            }
             if ruc not in demo: return xml_response(service,'consultarRucResponse',{'encontrado':'false','mensaje':'RUC no encontrado en el padrón simulado'},404)
             return xml_response(service,'consultarRucResponse',{'encontrado':'true',**demo[ruc],'fuente':'SIMULACION LOCAL - NO OFICIAL'},200)
+        if service=='sunat' and operation=='EmitirComprobanteRequest':
+            tipo=str(d.get('tipo','BOLETA')).upper()
+            try:
+                total=float(d.get('total','0'))
+            except (TypeError,ValueError):
+                total=0
+            if total<=0: return error(service,operation,400,'total debe ser mayor que cero')
+            subtotal=round(total/1.18,2)
+            igv=round(total-subtotal,2)
+            es_factura=tipo=='FACTURA'
+            serie='F001' if es_factura else 'B001'
+            numero=123456 if es_factura else 654321
+            comprobante=f'{serie}-{numero:06d}'
+            hash_cdr=hashlib.sha256(f'{comprobante}-{datetime.now(timezone.utc).isoformat()}'.encode()).hexdigest()[:16].upper()
+            return xml_response(service,'EmitirComprobanteResponse',{
+                'aceptado':'true','comprobante':comprobante,'subtotal':subtotal,
+                'igv':igv,'total':round(total,2),'hashCdr':hash_cdr,
+                'mensaje':f'Comprobante {comprobante} aceptado por PseudoSUNAT'
+            },201)
         return error(service,operation,501,f'Operación {operation} no implementada o no disponible en el backend')
     except requests.RequestException as exc:
         return error(service,operation if 'operation' in locals() else 'soapRequest',502,f'Backend no disponible: {exc.__class__.__name__}')

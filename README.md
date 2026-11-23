@@ -22,9 +22,11 @@ Los contratos WSDL/XSD se encuentran en [docs/contratos](docs/contratos).
 | Citas | PHP | 8007 | `clinica_citas` |
 | Farmacia | Spring Boot | 8008 | `clinica_farmacia` |
 | Notificaciones | PHP | 8010 | `clinica_notificaciones` |
+| PseudoRENIEC | Node.js | 9001 | padrón simulado |
+| PseudoSUNAT | Node.js | 9002 | comprobantes simulados |
 
-El ESB usa `http://localhost:8280/services`. El motor BPM/BPEL se publica en
-WSO2 BPS mediante el mapeo `9764:9763` de Docker.
+El ESB usa `http://localhost:8290/services`. PseudoRENIEC y PseudoSUNAT son
+proveedores externos simulados independientes en los puertos 9001 y 9002.
 
 ## Inicio rapido
 

@@ -34,6 +34,8 @@ if ($listenerRunning) {
   Write-Host "Listener STOMP de Notificaciones lanzado en una ventana independiente." -ForegroundColor Green
 }
 Start-One '11-soap-adapter' '11-soap-adapter' 8099 'if (Test-Path .\.venv\Scripts\python.exe) { .\.venv\Scripts\python.exe app.py } else { py app.py }'
+Start-One '12-PseudoRENIEC' '..\external\PseudoReniec' 9001 'if (-not (Test-Path .\node_modules)) { npm install }; npm start'
+Start-One '13-PseudoSUNAT' '..\external\PseudoSunat' 9002 'if (-not (Test-Path .\node_modules)) { npm install }; npm start'
 if (-not $SkipJava) {
   Write-Host "Los tres servicios Java se inician al final por consumo de memoria." -ForegroundColor Cyan
   Start-One '01-registro' '01-registro' 8080 '$env:MAVEN_OPTS="-Xms128m -Xmx512m"; .\mvnw.cmd spring-boot:run'

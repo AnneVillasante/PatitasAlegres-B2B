@@ -4,7 +4,7 @@ $ports = @(
     @('Registro',8080),@('Auth',5000),@('Propietarios',8003),
     @('Mascotas',8081),@('Personal',8005),@('Ventas',3000),
     @('Citas',8007),@('Farmacia',8008),@('Notificaciones',8010),
-    @('SOAP Adapter',8099),@('WSO2 MI',8290),
+    @('SOAP Adapter',8099),@('PseudoRENIEC',9001),@('PseudoSUNAT',9002),@('WSO2 MI',8290),
     @('MySQL',3307),@('ActiveMQ STOMP',61613),@('ActiveMQ Consola',8161)
 )
 foreach($item in $ports){
@@ -19,6 +19,15 @@ Write-Host "`n===== NODE MYSQL =====" -ForegroundColor Cyan
 try { Invoke-RestMethod http://127.0.0.1:3000/api/salud -TimeoutSec 5 | ConvertTo-Json -Depth 5 } catch { Write-Host $_.Exception.Message -ForegroundColor Red }
 Write-Host "`n===== ADAPTADOR SOAP =====" -ForegroundColor Cyan
 try { Invoke-RestMethod http://127.0.0.1:8099/health -TimeoutSec 5 | ConvertTo-Json -Depth 5 } catch { Write-Host $_.Exception.Message -ForegroundColor Red }
+Write-Host "`n===== PROVEEDORES EXTERNOS =====" -ForegroundColor Cyan
+foreach ($provider in @(@('PseudoRENIEC','http://127.0.0.1:9001/health'),@('PseudoSUNAT','http://127.0.0.1:9002/health'))) {
+    try {
+        $health = Invoke-RestMethod $provider[1] -TimeoutSec 5
+        Write-Host ("{0,-18} HTTP 200 - {1}" -f $provider[0],$health.status) -ForegroundColor Green
+    } catch {
+        Write-Host ("{0,-18} NO DISPONIBLE" -f $provider[0]) -ForegroundColor Red
+    }
+}
 Write-Host "`n===== WSO2 LIST SERVICES =====" -ForegroundColor Cyan
 $proxies = @(
     'AuthProxy','RegistroProxy','PropietariosProxy','MascotasProxy',

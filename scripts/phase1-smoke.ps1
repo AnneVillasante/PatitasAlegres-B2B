@@ -62,6 +62,18 @@ try {
     $failed++
 }
 
+Write-Host "`n===== PROVEEDORES EXTERNOS =====" -ForegroundColor Cyan
+foreach ($provider in @(@('PseudoRENIEC','http://127.0.0.1:9001/health'),@('PseudoSUNAT','http://127.0.0.1:9002/health'))) {
+    try {
+        $health = Invoke-RestMethod $provider[1] -TimeoutSec 5
+        Write-Host "$($provider[0].PadRight(18)): OK (HTTP 200 - $($health.status))" -ForegroundColor Green
+        $passed++
+    } catch {
+        Write-Warning "$($provider[0].PadRight(18)): no disponible"
+        $failed++
+    }
+}
+
 Write-Host "`n===== WSO2 MI - 11 PROXIES =====" -ForegroundColor Cyan
 $proxies = @(
     'AuthProxy','RegistroProxy','PropietariosProxy','MascotasProxy','VeterinariosProxy',

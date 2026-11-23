@@ -1,2 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://clinica.com/sunat" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://clinica.com/sunat" name="SunatService"><wsdl:types><xsd:schema><xsd:import namespace="http://clinica.com/sunat" schemaLocation="sunat.xsd"/></xsd:schema></wsdl:types><wsdl:message name="consultarRucInput"><wsdl:part name="parameters" element="tns:consultarRucRequest"/></wsdl:message><wsdl:message name="consultarRucOutput"><wsdl:part name="parameters" element="tns:consultarRucResponse"/></wsdl:message><wsdl:portType name="SunatPortType"><wsdl:operation name="consultarRuc"><wsdl:input message="tns:consultarRucInput"/><wsdl:output message="tns:consultarRucOutput"/></wsdl:operation></wsdl:portType><wsdl:binding name="SunatBinding" type="tns:SunatPortType"><soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/><wsdl:operation name="consultarRuc"><soap:operation soapAction="urn:consultarRuc"/><wsdl:input><soap:body use="literal"/></wsdl:input><wsdl:output><soap:body use="literal"/></wsdl:output></wsdl:operation></wsdl:binding><wsdl:service name="SunatService"><wsdl:port name="SunatPort" binding="tns:SunatBinding"><soap:address location="http://localhost:8290/services/SunatProxy"/></wsdl:port></wsdl:service></wsdl:definitions>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+ xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+ xmlns:tns="http://clinica.com/sunat"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ targetNamespace="http://clinica.com/sunat" name="SunatService">
+  <wsdl:types><xsd:schema><xsd:import namespace="http://clinica.com/sunat" schemaLocation="sunat.xsd"/></xsd:schema></wsdl:types>
+  <wsdl:message name="consultarRucInput"><wsdl:part name="parameters" element="tns:consultarRucRequest"/></wsdl:message>
+  <wsdl:message name="consultarRucOutput"><wsdl:part name="parameters" element="tns:consultarRucResponse"/></wsdl:message>
+  <wsdl:message name="EmitirComprobanteInput"><wsdl:part name="parameters" element="tns:EmitirComprobanteRequest"/></wsdl:message>
+  <wsdl:message name="EmitirComprobanteOutput"><wsdl:part name="parameters" element="tns:EmitirComprobanteResponse"/></wsdl:message>
+  <wsdl:portType name="SunatPortType">
+    <wsdl:operation name="consultarRuc"><wsdl:input message="tns:consultarRucInput"/><wsdl:output message="tns:consultarRucOutput"/></wsdl:operation>
+    <wsdl:operation name="EmitirComprobante"><wsdl:input message="tns:EmitirComprobanteInput"/><wsdl:output message="tns:EmitirComprobanteOutput"/></wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="SunatBinding" type="tns:SunatPortType">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="consultarRuc"><soap:operation soapAction="urn:consultarRuc"/><wsdl:input><soap:body use="literal"/></wsdl:input><wsdl:output><soap:body use="literal"/></wsdl:output></wsdl:operation>
+    <wsdl:operation name="EmitirComprobante"><soap:operation soapAction="urn:EmitirComprobante"/><wsdl:input><soap:body use="literal"/></wsdl:input><wsdl:output><soap:body use="literal"/></wsdl:output></wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="SunatService"><wsdl:port name="SunatPort" binding="tns:SunatBinding"><soap:address location="http://localhost:8290/services/SunatProxy"/></wsdl:port></wsdl:service>
+</wsdl:definitions>
