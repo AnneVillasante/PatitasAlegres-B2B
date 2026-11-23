@@ -13,14 +13,18 @@ USE clinica_auth;
 
 INSERT INTO roles (nombre, descripcion) VALUES
 ('ADMIN','Administrador del sistema'),
-('VETERINARIO','Personal médico'),
-('RECEPCION','Personal de recepción'),
+('MEDICO','Personal médico'),
+('RECEPCIONISTA','Personal de recepción'),
 ('CLIENTE','Propietario de mascota');
 
 -- Usuario admin por defecto (password: admin123)
 -- Hash bcrypt de "admin123"
-INSERT INTO usuarios (username, email, password_hash, id_rol) VALUES
-('admin', 'admin@clinica.com', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHe1HlCS4bZJ1iKzP8vQ7qZ4rY5sY6tY7u', 1);
+INSERT IGNORE INTO usuarios (username, email, password_hash, id_rol) VALUES
+('admin', 'admin@clinica.com', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHe1HlCS4bZJ1iKzP8vQ7qZ4rY5sY6tY7u', 1),
+('admin_demo', 'admin.demo@vetcare.com', '$2b$12$nQsDTAQ.6KngHMBN5QnAwe1AiLauCsNHUNmcKjCaeYL9Hmky6dQNC', (SELECT id_rol FROM roles WHERE nombre='ADMIN')),
+('medico_demo', 'medico.demo@vetcare.com', '$2b$12$AO7qCxML9jUBsJRuFy793.g2UVwvzcDwATQqe3FVBH.Q0AikX64HW', (SELECT id_rol FROM roles WHERE nombre='MEDICO')),
+('recepcion_demo', 'recepcion.demo@vetcare.com', '$2b$12$BLXpebI0N4ggmw3Ffm/h9e5NanI7otpttgttO2dZ3MU/99PF0xLQC', (SELECT id_rol FROM roles WHERE nombre='RECEPCIONISTA')),
+('cliente_demo', 'cliente.demo@vetcare.com', '$2b$12$JvdngO8XxUSKyFMGnlPFZO2HCPoPVB5HNffaIU3bmXdQ2sFsWYmhG', (SELECT id_rol FROM roles WHERE nombre='CLIENTE'));
 
 -- ============================================================
 -- SERVICIO 5: VETERINARIOS - Especialidades

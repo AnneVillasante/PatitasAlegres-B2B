@@ -28,7 +28,42 @@ Los contratos WSDL/XSD se encuentran en [docs/contratos](docs/contratos).
 El ESB usa `http://localhost:8290/services`. PseudoRENIEC y PseudoSUNAT son
 proveedores externos simulados independientes en los puertos 9001 y 9002.
 
+### Cuentas demo
+
+| Rol | Usuario | Contraseña |
+|---|---|---|
+| ADMIN | `admin.demo@vetcare.com` | `Admin2026!` |
+| MEDICO | `medico.demo@vetcare.com` | `Medico2026!` |
+| RECEPCIONISTA | `recepcion.demo@vetcare.com` | `Recepcion2026!` |
+| CLIENTE | `cliente.demo@vetcare.com` | `Cliente2026!` |
+
 ## Inicio rapido
+
+Desde la raíz del proyecto:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\start-all.ps1
+```
+
+El inicio rápido levanta MySQL/ActiveMQ si están disponibles, los microservicios,
+el adaptador SOAP y PseudoRENIEC/PseudoSUNAT, despliega los proxies si WSO2 MI
+ya está activo y ejecuta el diagnóstico final. No termina procesos existentes.
+Opciones útiles:
+
+```powershell
+.\scripts\start-all.ps1 -SkipJava
+.\scripts\start-all.ps1 -SkipDocker -SkipSmoke
+.\scripts\start-all.ps1 -SkipExternal
+```
+
+El inicio rápido también ejecuta la siembra demo si MySQL está disponible en
+`3307`. Puedes repetirla manualmente con:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\seed-demo.ps1
+```
+
+Configuración manual alternativa:
 
 1. Copia `config/.env example` a `.env` y reemplaza los valores de secreto.
 2. Con MySQL local, ejecuta en orden:

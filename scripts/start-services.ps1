@@ -1,4 +1,4 @@
-﻿param([switch]$SkipDocker, [switch]$SkipJava)
+param([switch]$SkipDocker, [switch]$SkipJava, [switch]$SkipExternal)
 $ErrorActionPreference = "Continue"
 $root = Split-Path -Parent $PSScriptRoot
 function PortOpen([int]$p) { return [bool](Test-NetConnection 127.0.0.1 -Port $p -InformationLevel Quiet -WarningAction SilentlyContinue) }
@@ -10,7 +10,7 @@ if (-not $SkipDocker) {
 }
 function Start-One($name,$folder,$port,$command) {
   if (PortOpen $port) { Write-Host "${name}: puerto $port ya está ocupado; se omite sin detener el proceso." -ForegroundColor Yellow; return }
-  $path=Join-Path $root "services\$folder"
+  $path = if ([System.IO.Path]::IsPathRooted($folder)) { $folder } else { Join-Path $root "services\$folder" }
   $line="Set-Location '$path'; $command"
   $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($line))
   Start-Process powershell.exe -ArgumentList @('-NoExit','-ExecutionPolicy','Bypass','-EncodedCommand',$encoded) -WindowStyle Normal | Out-Null
@@ -34,8 +34,10 @@ if ($listenerRunning) {
   Write-Host "Listener STOMP de Notificaciones lanzado en una ventana independiente." -ForegroundColor Green
 }
 Start-One '11-soap-adapter' '11-soap-adapter' 8099 'if (Test-Path .\.venv\Scripts\python.exe) { .\.venv\Scripts\python.exe app.py } else { py app.py }'
-Start-One '12-PseudoRENIEC' '..\external\PseudoReniec' 9001 'if (-not (Test-Path .\node_modules)) { npm install }; npm start'
-Start-One '13-PseudoSUNAT' '..\external\PseudoSunat' 9002 'if (-not (Test-Path .\node_modules)) { npm install }; npm start'
+if (-not $SkipExternal) {
+  Start-One '12-PseudoRENIEC' (Join-Path $root 'external\PseudoReniec') 9001 'if (-not (Test-Path .\node_modules)) { npm install --silent }; npm start'
+  Start-One '13-PseudoSUNAT' (Join-Path $root 'external\PseudoSunat') 9002 'if (-not (Test-Path .\node_modules)) { npm install --silent }; npm start'
+}
 if (-not $SkipJava) {
   Write-Host "Los tres servicios Java se inician al final por consumo de memoria." -ForegroundColor Cyan
   Start-One '01-registro' '01-registro' 8080 '$env:MAVEN_OPTS="-Xms128m -Xmx512m"; .\mvnw.cmd spring-boot:run'

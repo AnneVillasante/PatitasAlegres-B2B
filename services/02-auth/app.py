@@ -155,6 +155,11 @@ def iniciar_sesion():
 
     email = email.strip().lower()
     rol_seleccionado = rol_seleccionado.strip().upper()
+    alias_roles = {
+        "VETERINARIO": "MEDICO",
+        "RECEPCION": "RECEPCIONISTA"
+    }
+    rol_seleccionado = alias_roles.get(rol_seleccionado, rol_seleccionado)
 
     if not email or not password or not rol_seleccionado:
         return jsonify({

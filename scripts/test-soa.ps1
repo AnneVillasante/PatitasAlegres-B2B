@@ -23,7 +23,7 @@ Write-Host "`n===== PROVEEDORES EXTERNOS =====" -ForegroundColor Cyan
 foreach ($provider in @(@('PseudoRENIEC','http://127.0.0.1:9001/health'),@('PseudoSUNAT','http://127.0.0.1:9002/health'))) {
     try {
         $health = Invoke-RestMethod $provider[1] -TimeoutSec 5
-        Write-Host ("{0,-18} HTTP 200 - {1}" -f $provider[0],$health.status) -ForegroundColor Green
+        Write-Host ("{0,-18} HTTP 200 - {1} ({2} registros)" -f $provider[0],$health.status,$health.registros) -ForegroundColor Green
     } catch {
         Write-Host ("{0,-18} NO DISPONIBLE" -f $provider[0]) -ForegroundColor Red
     }

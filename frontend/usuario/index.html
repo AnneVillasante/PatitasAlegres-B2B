@@ -97,9 +97,122 @@
 
 <script src="js/script1.js"></script>
 <script>
-function entrarDemo() {
+const CUENTAS_DEMO = {
+    ADMIN: {
+        email: "admin.demo@vetcare.com",
+        password: "Admin2026!",
+        nombre: "admin_demo",
+        dni: "71234567"
+    },
+    MEDICO: {
+        email: "medico.demo@vetcare.com",
+        password: "Medico2026!",
+        nombre: "Dr. Rodrigo Pacheco (Demo)",
+        dni: "41258963"
+    },
+    RECEPCIONISTA: {
+        email: "recepcion.demo@vetcare.com",
+        password: "Recepcion2026!",
+        nombre: "recepcion_demo",
+        dni: "45678912"
+    },
+    CLIENTE: {
+        email: "cliente.demo@vetcare.com",
+        password: "Cliente2026!",
+        nombre: "Suemy Anne Villasante (Demo)",
+        dni: "71234567"
+    }
+};
+
+function cargarDatosBasicosDemoLocal() {
+    const hoy = new Date().toISOString().split("T")[0];
+    const propietarios = [
+        { id: 1, dni: "71234567", nombres: "SUEMY ANNE KATRINA", apellidos: "VILLASANTE VILLASANTE", telefono: "987654321", email: "cliente.demo@vetcare.com", direccion: "Av. Ejército 450, Arequipa" },
+        { id: 2, dni: "45678912", nombres: "CARLOS ALBERTO", apellidos: "MENDOZA QUISPE", telefono: "984556677", email: "carlos.mendoza@example.com", direccion: "Av. Jesús 220, Mariano Melgar" }
+    ];
+    const mascotas = [
+        { id: 1, codigo: "MASC-DEMO-01", id_propietario: 1, id_especie: 1, id_raza: 1, nombre: "Max", sexo: "MACHO", fecha_nacimiento: "2023-05-15", peso_kg: 26.50, color: "Dorado", numero_chip: "CHIP-900123", observaciones: "Paciente demo con vacunas al día", estado: "ACTIVO" }
+    ];
+    const veterinarios = [
+        { id: 1, codigo: "VET-DEMO-01", nombres: "Rodrigo", apellidos: "Pacheco Salas", colegiatura: "CMVP-07621", id_especialidad: 1, telefono: "976112244", email: "medico.demo@vetcare.com", disponible: true, estado: "ACTIVO" }
+    ];
+    const citas = [
+        { id: 1, codigo_cita: "CITA-DEMO-01", id_propietario: 1, id_mascota: 1, id_veterinario: 1, id_tipo: 1, dni: "71234567", mascota: "Max (Golden Retriever)", tipo: "Consulta General", veterinario: "Dr. Rodrigo Pacheco", fecha: hoy, hora: "10:30", estado: "Confirmada", motivo: "Control general y vacunación anual" },
+        { id: 2, codigo_cita: "CIT-002", id_propietario: 2, id_mascota: 2, id_veterinario: 2, id_tipo: 2, dni: "45678912", mascota: "Mimi (Gato Siamés)", tipo: "Vacunación", veterinario: "Dra. Valeria Chávez", fecha: hoy, hora: "12:00", estado: "Pendiente", motivo: "Refuerzo triple felina" }
+    ];
+    const historial = [
+        { id: 1, fecha: hoy, mascota: "Max (Golden Retriever)", diagnostico: "Control preventivo sano", tratamiento: "Desparasitación interna + Vitaminas", vacunas: "Séxtuple + Antirrábica al día", observaciones: "Peso: 26.5 kg. Paciente activo y sin alergias." }
+    ];
+
+    const cache = {
+        vetcare_propietarios: propietarios,
+        vetcare_mascotas: mascotas,
+        vetcare_veterinarios: veterinarios,
+        vetcare_citas: citas,
+        vetcare_historial: historial,
+        vetcare_db_propietarios: propietarios,
+        vetcare_db_mascotas: mascotas,
+        vetcare_db_veterinarios: veterinarios,
+        vetcare_db_citas: citas,
+        vetcare_db_recetas: [{ id_receta: 1, codigo: "REC-DEMO-001", id_mascota: 1, id_veterinario: 1, id_cita: 1, fecha_emision: hoy, observaciones: "Desparasitación interna y vitaminas", estado: "DESPACHADA" }]
+    };
+
+    Object.entries(cache).forEach(([key, value]) => {
+        localStorage.setItem(key, JSON.stringify(value));
+    });
+}
+
+async function entrarDemo() {
     const rol = document.getElementById("rolDemo").value;
+    const cuenta = CUENTAS_DEMO[rol] || CUENTAS_DEMO.ADMIN;
+
+    cargarDatosBasicosDemoLocal();
+    localStorage.removeItem("patitasAlegreToken");
+
+    try {
+        const respuesta = await fetch("http://127.0.0.1:5000/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({
+                email: cuenta.email,
+                password: cuenta.password,
+                rol: rol
+            })
+        });
+
+        let datos = {};
+        try {
+            datos = await respuesta.json();
+        } catch (error) {
+            datos = {};
+        }
+
+        if (respuesta.ok && datos.ok) {
+            localStorage.setItem("patitasAlegreToken", datos.token);
+            localStorage.setItem("vetcare_rol", datos.usuario.rol || rol);
+            localStorage.setItem("vetcare_usuario", JSON.stringify({
+                ...datos.usuario,
+                dni: cuenta.dni
+            }));
+            window.location.href = "dashboard.html";
+            return;
+        }
+
+        console.warn("Acceso demo rechazado por Flask:", datos.mensaje || `HTTP ${respuesta.status}`);
+    } catch (error) {
+        console.warn("Auth Flask no disponible, iniciando en modo demo offline:", error);
+    }
+
     localStorage.setItem("vetcare_rol", rol);
+    localStorage.setItem("vetcare_usuario", JSON.stringify({
+        nombre: cuenta.nombre,
+        email: cuenta.email,
+        rol: rol,
+        dni: cuenta.dni
+    }));
     window.location.href = "dashboard.html";
 }
 </script>

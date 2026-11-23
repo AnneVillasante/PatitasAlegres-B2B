@@ -5,6 +5,56 @@ Este documento detalla el procedimiento paso a paso para configurar la base de d
 
 ---
 
+## Inicio rápido
+
+Desde la raíz del proyecto, el comando recomendado es:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\start-all.ps1
+```
+
+Este flujo inicia la infraestructura Docker disponible, los microservicios,
+el adaptador SOAP, PseudoRENIEC en `9001` y PseudoSUNAT en `9002`. Si WSO2 MI
+está activo en `8290`, también despliega sus proxies y al final ejecuta la
+comprobación general. No detiene procesos que ya estén escuchando en los puertos.
+Cuando MySQL esté disponible en `3307`, también crea las cuentas demo y los
+datos básicos de propietario, mascota, veterinario y cita.
+
+Opciones:
+
+```powershell
+# Omite los servicios Java para ahorrar memoria
+powershell -ExecutionPolicy Bypass -File .\scripts\start-all.ps1 -SkipJava
+
+# Omite Docker y la prueba final
+powershell -ExecutionPolicy Bypass -File .\scripts\start-all.ps1 -SkipDocker -SkipSmoke
+
+# Levanta la plataforma sin los simuladores externos
+powershell -ExecutionPolicy Bypass -File .\scripts\start-all.ps1 -SkipExternal
+```
+
+Para repetir únicamente la siembra demo:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\seed-demo.ps1
+```
+
+Los padrones externos contienen 50 registros:
+
+- RENIEC: `http://127.0.0.1:9001/api/reniec/dni`
+- SUNAT: `http://127.0.0.1:9002/api/sunat/ruc`
+
+Cuentas demo disponibles en el formulario o en el acceso rápido:
+
+| Rol | Usuario | Contraseña |
+|---|---|---|
+| ADMIN | `admin.demo@vetcare.com` | `Admin2026!` |
+| MEDICO | `medico.demo@vetcare.com` | `Medico2026!` |
+| RECEPCIONISTA | `recepcion.demo@vetcare.com` | `Recepcion2026!` |
+| CLIENTE | `cliente.demo@vetcare.com` | `Cliente2026!` |
+
+---
+
 ## 📋 1. Requisitos Previos
 
 Asegúrate de contar con las siguientes herramientas instaladas en tu sistema:

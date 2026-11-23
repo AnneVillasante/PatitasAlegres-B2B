@@ -126,7 +126,22 @@ No ejecutes `docker compose down`, `docker volume prune` ni elimines contenedore
 Una vez creados y configurados los `.env`, desde la raíz:
 
 ```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\start-all.ps1
+```
+
+El inicio rápido levanta Docker, microservicios, adaptador, PseudoRENIEC
+(puerto `9001`) y PseudoSUNAT (puerto `9002`) sin detener procesos existentes.
+Para iniciar solo los servicios locales sin despliegue WSO2 ni prueba final:
+
+```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\start-services.ps1 -SkipDocker
+```
+
+Durante `start-all.ps1`, la siembra demo se ejecuta automáticamente cuando
+MySQL está disponible en `3307`. Para ejecutarla manualmente:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\seed-demo.ps1
 ```
 
 El script no mata procesos existentes: si un puerto está ocupado, omite ese servicio. Inicia Java al final y limita Maven a 512 MB por proceso. Si tu PC se queda sin memoria, usa `-SkipJava` y arranca cada Java service manualmente cuando lo necesites.
@@ -185,7 +200,15 @@ $soap = Get-Content .\esb\soap-ejemplos\listar-productos.xml -Raw
 Invoke-WebRequest -Uri http://localhost:8290/services/VentaProxy -Method POST -ContentType 'text/xml; charset=utf-8' -Headers @{ SOAPAction='urn:listarProductos' } -Body $soap -UseBasicParsing
 ```
 
-RENIEC y SUNAT son demostraciones locales. Prueba los ejemplos incluidos:
+RENIEC y SUNAT son demostraciones locales con 50 registros en cada padrón.
+Consulta el listado completo directamente:
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:9001/api/reniec/dni
+Invoke-RestMethod http://127.0.0.1:9002/api/sunat/ruc
+```
+
+Prueba los ejemplos incluidos:
 
 ```powershell
 $soap = Get-Content .\esb\soap-ejemplos\consultar-reniec-demo.xml -Raw
@@ -194,7 +217,8 @@ $soap = Get-Content .\esb\soap-ejemplos\consultar-sunat-demo.xml -Raw
 Invoke-WebRequest -Uri http://localhost:8290/services/SunatProxy -Method POST -ContentType 'text/xml; charset=utf-8' -Headers @{ SOAPAction='urn:consultarRuc' } -Body $soap -UseBasicParsing
 ```
 
-Registros demo: DNI `12345678`, RUC `20123456789`. Son datos ficticios.
+Ejemplos: DNI `71234567`, `45678912`, `12345678` y RUC `20601234561`,
+`20100047218`, `20123456789`. Son datos ficticios.
 
 ## 9. Verificación general
 
